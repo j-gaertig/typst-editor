@@ -1,0 +1,18 @@
+# Optional hardening overlay (not required to run: the image ships the healthcheck and uid 999 itself).
+# Usage: docker compose -f compose.yml -f compose.hardened.yml up -d
+# With the dev variant: docker compose -f compose.dev.yml -f compose.hardened.yml up -d
+services:
+  typst-editor:
+    read_only: true # uploads spill to /tmp (tmpfs below), data lives on the mounted volume.
+    tmpfs: [/tmp, /run]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 100
+    cpus: "1.0"
+    mem_limit: 512m
+    stop_grace_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

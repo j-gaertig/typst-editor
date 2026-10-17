@@ -14,6 +14,12 @@ candidate digest yet.
 
 ## What this candidate contains (implemented, acceptance open)
 
+- Compose set restructured: `compose.yml` follows the newest published release
+  tag (`latest`) and stays minimal (healthcheck, uid 999 and port default live
+  in the image); `compose.dev.yml` tracks the rolling `main` builds;
+  `compose.pinned.yml` pins an exact version (`0.2.0`); `compose.hardened.yml`
+  keeps the former sandbox (read-only rootfs, no caps, resource + log limits)
+  as an optional overlay; service renamed `app` → `typst-editor`.
 - Projects-only model: migration 16 auto-converts legacy folders and
   standalone docs; new docs (REST/MCP/ZIP import) get a project immediately.
   Legacy single-doc shares stay doc-scoped (`guest` sees only that doc + its

@@ -1,0 +1,17 @@
+name: typst-editor
+
+# Direct version pin: reproducible deployments, never auto-updates.
+# Update = bump the tag, then: docker compose -f compose.pinned.yml pull && docker compose -f compose.pinned.yml up -d
+services:
+  typst-editor:
+    image: ghcr.io/fl-grtg/typst-editor:0.2.0
+    container_name: typst-editor
+    restart: unless-stopped
+    env_file: [{path: .env, required: false}]
+    volumes:
+      - ${COMPOSE_DATA_PATH:-typst-data}:/app/data
+    ports:
+      - "127.0.0.1:${PORT:-8978}:${PORT:-8978}" # PORT from .env (default 8978); LAN bind: replace 127.0.0.1 with your host IP
+
+volumes:
+  typst-data:

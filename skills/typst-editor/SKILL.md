@@ -9,7 +9,7 @@ Work on the user's self-hosted Typst docs through MCP (Streamable HTTP).
 
 ## 0. Human setup (once — walk the user through this if anything is missing)
 
-1. Server URL: local `http://127.0.0.1:8978` (from this checkout: `docker compose up -d`, port via `PORT`; image `ghcr.io/fl-grtg/typst-editor:main`) or remote `https://host`. The user needs an account on it — server default is `invite-only`, so an invite code (or the admin) may be required first; `closed` needs the admin (set `REGISTRATION`, no UI for it), no self-registration. Fresh Docker installs print the token once on first start (`docker compose logs app | grep "invite code"`; also stored `chmod 600` as `DATA_DIR/.invite_token`).
+1. Server URL: local `http://127.0.0.1:8978` (from this checkout: `docker compose up -d`, port via `PORT`; stable `compose.yml` follows the newest release (`latest`), dev `compose.dev.yml` tracks `:main`, `compose.pinned.yml` pins an exact version) or remote `https://host`. The user needs an account on it — server default is `invite-only`, so an invite code (or the admin) may be required first; `closed` needs the admin (set `REGISTRATION`, no UI for it), no self-registration. Fresh Docker installs print the token once on first start (`docker compose logs typst-editor | grep "invite code"`; also stored `chmod 600` as `DATA_DIR/.invite_token`).
 2. In the web UI (login → Settings → API keys → Create), with a **name** (required):
    - **Role: Reviewer** for read/comment jobs; **Editor** only if files must change. (Default: Editor.)
    - **Expires:** 30–90 days recommended. (Default: never.)

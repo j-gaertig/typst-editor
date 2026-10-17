@@ -30,13 +30,20 @@ Docker (no config needed):
 
 ```bash
 docker compose up -d
-docker compose logs app | grep "invite code"
-# Windows PowerShell: docker compose logs app | Select-String "invite code"
+docker compose logs typst-editor | grep "invite code"
+# Windows PowerShell: docker compose logs typst-editor | Select-String "invite code"
 ```
 
-Pulls the image (`pull_policy: always`). Data stays in a managed volume. Host path instead: set `COMPOSE_DATA_PATH` (Linux/macOS/WSL: `chown -R 999:999` on it).
+`compose.yml` follows the newest published release tag (`latest`, stable). Healthcheck, uid `999:999` and the port default live in the image, so the compose file stays minimal. Data stays in a managed volume. Host path instead: set `COMPOSE_DATA_PATH` (Linux/macOS/WSL: `chown -R 999:999` on it).
 
-Sign up at `http://127.0.0.1:8978` with the invite code from the logs. Custom setup only: `cp .env.example .env`. Custom port: set `PORT` in `.env` (moves host + container port). Build local: `docker build -t ghcr.io/fl-grtg/typst-editor:main .`.
+Pin variants share project name + data volume — switching only recreates the container:
+- Stable (default, `compose.yml`): `latest` = newest published release. Update: `docker compose pull && docker compose up -d`.
+- Development (`compose.dev.yml`): `main` = newest branch build, re-pulled on every start.
+- Direct version pin (`compose.pinned.yml`): exact tag (`0.2.0`), reproducible; update = bump the tag, then `docker compose -f compose.pinned.yml pull && docker compose -f compose.pinned.yml up -d`.
+- Hardened sandbox (read-only rootfs, no caps, resource + log limits): add `-f compose.hardened.yml` to any of the above.
+- One worker, one replica: rooms live in process memory, more replicas would split sessions.
+
+Sign up at `http://127.0.0.1:8978` with the invite code from the logs. Custom setup only: `cp .env.example .env`. Custom port: set `PORT` in `.env` (moves host + container port). Build local: `docker compose -f compose.yml -f compose.prerelease.yml up --build -d`.
 
 Local Python 3.11:
 
@@ -102,7 +109,7 @@ Agent loop `ls -> read -> edit -> view -> fix`; see `skills/typst-editor/SKILL.m
 python scripts/backup.py --include-files
 ```
 
-Writes `DATA_DIR/backup/app-YYYYMMDD-HHMMSS.db` (`VACUUM INTO`) + `*-files.tar.gz` of `DATA_DIR/files`. Keeps newest 7 (`--keep N`, `--dry-run` to preview). `--keep 0` still keeps 1. Cron: `docker compose exec -T app python scripts/backup.py --include-files`. Backups are plain: `gpg -c DATA_DIR/backup/app-*.db`.
+Writes `DATA_DIR/backup/app-YYYYMMDD-HHMMSS.db` (`VACUUM INTO`) + `*-files.tar.gz` of `DATA_DIR/files`. Keeps newest 7 (`--keep N`, `--dry-run` to preview). `--keep 0` still keeps 1. Cron: `docker compose exec -T typst-editor python scripts/backup.py --include-files`. Backups are plain: `gpg -c DATA_DIR/backup/app-*.db`.
 
 DB dump and files archive are two separate steps with no shared consistent point under writes. Create backups in a maintenance window (stop the server or ensure no writes during the run); the same applies to restore. The automatic DB migration backup covers the database only, not attachments. Source/document ZIPs (`export.zip`, document `zip`, project `export-zip`) are not server backups.
 
